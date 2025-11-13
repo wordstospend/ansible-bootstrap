@@ -30,23 +30,6 @@ msg() { printf "\033[1;32m%s\033[0m\n" "$*"; }
 warn() { printf "\033[1;33m%s\033[0m\n" "$*"; }
 err() { printf "\033[1;31m%s\033[0m\n" "$*" >&2; exit 1; }
 
-detect_os() {
-  case "$(uname -s)" in
-    Darwin) echo "macos" ;;
-    Linux)
-      if [ -f /etc/os-release ]; then
-        . /etc/os-release
-        case "${ID:-}" in
-          debian|ubuntu|linuxmint|pop) echo "debian" ;;
-          *) err "Unsupported Linux distro: ${ID:-unknown}. Add your package steps." ;;
-        esac
-      else
-        err "Unknown Linux; /etc/os-release missing."
-      fi
-      ;;
-    *) err "Unsupported OS: $(uname -s)" ;;
-  esac
-}
 
 install_prereqs_macos() {
   msg "Installing prerequisites for macOS..."
@@ -65,13 +48,6 @@ install_prereqs_macos() {
 
   brew update
   brew install python git openssh
-}
-
-install_prereqs_debian() {
-  msg "Installing prerequisites for Debian/Ubuntu..."
-  sudo apt-get update -y
-  sudo apt-get install -y --no-install-recommends \
-    python3 python3-venv python3-pip git openssh-client
 }
 
 ensure_ssh_key() {
@@ -135,11 +111,7 @@ run_smoke_test() {
 }
 
 main() {
-  OS="$(detect_os)"
-  case "$OS" in
-    macos) install_prereqs_macos ;;
-    debian) install_prereqs_debian ;;
-  esac
+  install_prereqs_macos
   ensure_ssh_key
   create_project
   create_venv_and_install
