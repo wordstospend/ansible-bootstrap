@@ -109,7 +109,7 @@ EOF
 
     - name: Show Python version on target
       ansible.builtin.debug:
-        var: ansible_python.version.full
+        var: ansible_python.version
 YML
   fi
 }
