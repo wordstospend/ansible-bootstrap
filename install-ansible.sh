@@ -28,6 +28,7 @@ install_prereqs_macos() {
   if ! command -v brew >/dev/null 2>&1; then
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
       echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> $HOME/.zprofile
+      source ~/.zprofile
   fi
 
   brew update
