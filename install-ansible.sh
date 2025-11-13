@@ -1,6 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Ask for sudo once and keep alive
+if command -v sudo >/dev/null 2>&1; then
+  echo "Requesting administrator access (you'll only be asked once)..."
+  sudo -v
+  # Keep-alive: update existing `sudo` timestamp until script finishes
+  while true; do
+    sleep 60
+    sudo -n true 2>/dev/null || exit
+  done &
+  SUDO_KEEPALIVE_PID=$!
+  trap 'kill $SUDO_KEEPALIVE_PID >/dev/null 2>&1' EXIT
+else
+  echo "sudo not found; continuing without elevated privileges."
+fi
+
+
 # ------- config you can tweak -------
 ANSIBLE_VERSION=""   # e.g. "==10.2.0" or leave blank for latest
 PROJECT_DIR="${HOME}/ansible"
@@ -9,11 +25,6 @@ INITIAL_INVENTORY="${PROJECT_DIR}/inventory/hosts.ini"
 INITIAL_PLAYBOOK="${PROJECT_DIR}/site.yml"
 # ------------------------------------
 
-need_sudo() {
-  if command -v sudo >/dev/null 2>&1; then
-    sudo -v
-  fi
-}
 
 msg() { printf "\033[1;32m%s\033[0m\n" "$*"; }
 warn() { printf "\033[1;33m%s\033[0m\n" "$*"; }
@@ -58,7 +69,6 @@ install_prereqs_macos() {
 
 install_prereqs_debian() {
   msg "Installing prerequisites for Debian/Ubuntu..."
-  need_sudo
   sudo apt-get update -y
   sudo apt-get install -y --no-install-recommends \
     python3 python3-venv python3-pip git openssh-client
