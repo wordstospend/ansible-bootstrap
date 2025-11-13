@@ -1,21 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Ask for sudo once and keep alive
-if command -v sudo >/dev/null 2>&1; then
-  echo "Requesting administrator access (you'll only be asked once)..."
-  sudo -v
-  # Keep-alive: update existing `sudo` timestamp until script finishes
-  while true; do
-    sleep 60
-    sudo -n true 2>/dev/null || exit
-  done &
-  SUDO_KEEPALIVE_PID=$!
-  trap 'kill $SUDO_KEEPALIVE_PID >/dev/null 2>&1' EXIT
-else
-  echo "sudo not found; continuing without elevated privileges."
-fi
-
 
 # ------- config you can tweak -------
 ANSIBLE_VERSION=""   # e.g. "==10.2.0" or leave blank for latest
