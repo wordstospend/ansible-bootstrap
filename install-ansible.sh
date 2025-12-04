@@ -75,6 +75,16 @@ YML
   fi
 }
 
+clone_project() {
+  msg "Cloning ansible-bootstrap project..."
+  mkdir -p "${HOME}/bin"
+  if [ ! -d "${HOME}/bin/ansible-bootstrap" ]; then
+    (cd "${HOME}/bin" && git clone git@github.com:wordstospend/ansible-bootstrap.git)
+  else
+    msg "Project directory ${HOME}/bin/ansible-bootstrap already exists."
+  fi
+}
+
 create_venv_and_install() {
   msg "Creating virtualenv and installing Ansible..."
   python3 -m venv "${VENV_DIR}"
@@ -98,9 +108,7 @@ run_smoke_test() {
 main() {
   install_prereqs_macos
   ensure_ssh_key
-  create_project
-  create_venv_and_install
-  run_smoke_test
+  clone_project
   msg "Done ✅"
 }
 
